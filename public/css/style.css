@@ -1,45 +1,123 @@
+/***********************************************************************
+    変数定義
+************************************************************************/
 :root {
     --text-color: #333;
     --main-color: #33cc00;
+    --light-color: #ddd;
+    --btn-entry-color: #2172f2;
 }
 
 /***********************************************************************
-    Header
+    共通部品
 ************************************************************************/
-.owner_area {
-    text-align: right;
-    margin-top: 10px;
-    margin-right: 2rem;
+.btn_wrap {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #eee;
+    padding: 1rem 0;
 }
-.owner_wrap {
-    display: flex;
-    justify-content: right;
-    align-items: center;
+.btn_wrap .btn {
+    padding: 1rem 0;
 }
-.owner_wrap .hello {
-    margin-right: 5px;
-}
-.owner_wrap svg {
-    font-size: 200%;
+.btn_entry {
+    background-color: var(--btn-entry-color);
+    color: #fff;
 }
 
-.app_title {
-    background-color: var(--main-color);
-    color: #fff;
-    padding: 1rem 0 1rem 2rem;
-    font-size: 2rem;
+/* Video関連 */
+.movie_wrapper {
+    width: 85%;
+    margin: 1rem auto;
+}
+.frame_wrapper {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 56.25%;
+    /* padding-bottom: 47.25%; */
+    overflow: hidden;
+    margin-bottom: 50px;
+}
+.frame_wrapper iframe {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+/***********************************************************************
+    共通レイアウト
+************************************************************************/
+.container {
+    margin-bottom: 2rem;
+}
+.common_wrap {
+    margin-left: auto;
+    margin-right: auto;
 }
 .users_wrap {
+    margin-left: auto;
+    margin-right: auto;
+}
+.guide_area {
+    margin-bottom: 2rem;
+}
+.guide_wrap {
+    border: 3px solid var(--main-color);
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.guide_label {
+    width: 15%;
+    background-color: var(--light-color);
+    padding: 10px 0;
+    text-align: center;
+    border-right: 3px solid var(--main-color);
+}
+.guide_body {
+    width: 85%;
+    position: relative;
+    padding: 10px 30px 10px 10px;
+}
+.guide_body:after {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 150%;
+    content: "\f054";
+    color: var(--main-color);
+}
 
+.result_area {
+    color: var(--main-color);
+    font-weight: bold;
+    border-bottom: 5px solid var(--main-color);
+    padding-bottom: 10px;
 }
 @media screen and (min-width: 768px){
+    .common_wrap {
+        width: 750px;
+    }
     .users_wrap {
         width: 750px;
-        margin-left: auto;
-        margin-right: auto;
+    }
+}
+@media screen and (min-width: 1025px){
+    .common_wrap {
+        width: 900px;
     }
 }
 
+/***********************************************************************
+    Form
+************************************************************************/
 dl.form-group {
     display: block;
 }
@@ -76,3 +154,135 @@ span.required {
     margin-right: 5px;
 }
 
+/***********************************************************************
+    Header
+************************************************************************/
+.owner_area {
+    text-align: right;
+    margin-top: 10px;
+    margin-right: 2rem;
+}
+.owner_wrap {
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+.owner_wrap .hello {
+    margin-right: 5px;
+}
+.owner_wrap svg {
+    font-size: 200%;
+}
+
+.app_title {
+    background-color: var(--main-color);
+    color: #fff;
+    padding: 1rem 0 1rem 2rem;
+    font-size: 2rem;
+}
+
+/***********************************************************************
+    Footer
+************************************************************************/
+footer {
+    background-color: #333;
+    color: #fff;
+    padding: 1rem 0 7rem;
+}
+/***********************************************************************
+    曲一覧
+************************************************************************/
+.music_item {
+    position: relative;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px dotted var(--main-color);
+    color: var(--text-color);
+}
+.music_item:hover {
+    color: var(--text-color);
+    text-decoration: none;
+    background-color: #efefef;
+}
+.music_item:after {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    font-size: 250%;
+    content: "\f054";
+    color: var(--main-color);
+}
+.user_info {
+    width: 10%;
+    text-align: center;
+}
+.music_info1 {
+    width: 75%;
+}
+.music_info1 dl {
+    display: table;
+    width: 100%;
+    margin-bottom: 5px;
+}
+.music_info1 dt {
+    display: table-cell;
+    width: 20%;
+    color: var(--main-color);
+    text-align: right;
+}
+.music_info1 dd {
+    display: table-cell;
+}
+.music_info2 {
+    width: 10%;
+}
+/***********************************************************************
+    曲詳細
+************************************************************************/
+.music_info_desc {
+    width: 100%;
+}
+.music_info_desc dl {
+    width: 100%;
+    margin-bottom: 5px;
+}
+.music_info_desc dt {
+    width: 100%;
+    background-color: var(--main-color);
+    color: #fff;
+    padding: 5px;
+    border-radius: 5px;
+}
+.music_info_desc dd {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+.music_info_desc .row {
+    margin-right: 0;
+    margin-left: 0;
+}
+.music_info_desc .comment_date {
+    font-size: 80%;
+}
+@media screen and (min-width: 992px) {
+    .music_info_desc dl {
+        display: table;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    .music_info_desc dt {
+        display: table-cell;
+        width: 20%;
+        text-align: right;
+        background-color: var(--background-color);
+        color: var(--main-color);
+    }
+    .music_info_desc dd {
+        display: table-cell;
+    }
+}

@@ -16,9 +16,9 @@ class CreateCommentsTable extends Migration
         Schema::create('comments', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('music_id');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->text('comment_text');
-            $table->timestamp('delete_request');
+            $table->timestamp('delete_request')->nullable();
             $table->timestamps();
 
             // 外部キー制約

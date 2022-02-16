@@ -16,8 +16,8 @@ class CreateLikesTable extends Migration
         Schema::create('likes', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('music_id');
-            $table->unsignedBigInteger('user_id');
-            $table->string('guest_identification');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->string('guest_identification')->nullable();
             $table->timestamps();
 
             // 外部キー制約

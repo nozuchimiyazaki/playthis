@@ -36,4 +36,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * このユーザが所有する投稿
+     */
+    public function musics()
+    {
+        return $this->hasMany(Music::class);
+    }
 }

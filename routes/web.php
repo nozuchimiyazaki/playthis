@@ -11,9 +11,7 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', 'MusicsController@index');
 
 // サインアップ
 Route::get('signup', 'Auth\RegisterController@showRegistrationForm')->name('signup.get');
@@ -23,3 +21,15 @@ Route::post('signup', 'Auth\RegisterController@register')->name('signup.post');
 Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
 Route::post('login', 'Auth\LoginController@login')->name('login.post');
 Route::get('logout', 'Auth\LoginController@logout')->name('logout.get');
+
+Route::group(['prefix' => 'musics/{id}'], function () {
+    // 曲詳細ページ
+    Route::get('/', 'MusicsController@show')->name('musics.show');
+    Route::post('comment', 'MusicsController@commentstore')->name('comment.store');
+});
+
+Route::group(['middleware' => ['auth']], function () {
+    // 曲新規登録ページ
+    Route::get('new', 'MusicsController@create')->name('new');
+    Route::post('store', 'MusicsController@store')->name('store');
+});
