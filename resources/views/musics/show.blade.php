@@ -129,7 +129,7 @@
                 <div class="common_wrap">
                     <div class="row">
                         <div class="col-6">
-                            <a class="btn btn_entry btn-block" href="#">編集する</a>
+                            <a class="btn btn_entry btn-block" href="{!! route('musics.edit', $music->id) !!}">編集する</a>
                         </div>
                         <div class="col-6">
                             <a class="btn btn_entry btn-block" href="#">削除する</a>

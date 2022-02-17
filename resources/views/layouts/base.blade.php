@@ -17,7 +17,7 @@
 
         <div class="container">
             {{-- エラーメッセージ --}}
-            {{-- @include('commons.error_messages') --}}
+            @include('commons.messages')
 
             @yield('content')
         </div>

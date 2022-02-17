@@ -25,7 +25,11 @@ Route::get('logout', 'Auth\LoginController@logout')->name('logout.get');
 Route::group(['prefix' => 'musics/{id}'], function () {
     // 曲詳細ページ
     Route::get('/', 'MusicsController@show')->name('musics.show');
+    // コメント登録
     Route::post('comment', 'MusicsController@commentstore')->name('comment.store');
+    // 曲編集ページ
+    Route::get('edit', 'MusicsController@edit')->name('musics.edit');
+    Route::post('update', 'MusicsController@update')->name('musics.update');
 });
 
 Route::group(['middleware' => ['auth']], function () {
