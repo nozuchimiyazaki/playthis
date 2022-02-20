@@ -12,6 +12,8 @@
 */
 
 Route::get('/', 'MusicsController@index');
+Route::post('result', 'MusicsController@result')->name('musics.result');
+Route::get('result', 'MusicsController@result')->name('musics.result');
 
 // サインアップ
 Route::get('signup', 'Auth\RegisterController@showRegistrationForm')->name('signup.get');

@@ -1,7 +1,7 @@
 @foreach($musics as $music)
     <a class="music_item" href="{!! route('musics.show', ['id' => $music->id]) !!}">
         <div class="user_info">
-            <div><img class="rounded" src="{{ Gravatar::get($music->user->email, ['size' => 50]) }}" ></div>
+            <div><img class="rounded-circle" src="{{ Gravatar::get($music->user->email, ['size' => 50]) }}" ></div>
             <div class="user_name">{{ $music->user->name }}</div>
         </div>
 
@@ -31,3 +31,16 @@
         </div>
     </a>
 @endforeach
+
+{{-- ページネーションのリンク --}}
+<div class="text-center center-block">
+    <div class="mt-3 mb-3">
+        {{-- @if (isset($musics->links()) && ($musics->links() !== null)) --}}
+        {{-- @if ($musics->links() !== null) --}}
+            {{ $musics->links() }}
+        {{-- @endif --}}
+    </div>
+    <div class="mb-4">
+        <a href="{{ env('APP_ROOT')}}/">トップページへ</a>
+    </div>
+</div>

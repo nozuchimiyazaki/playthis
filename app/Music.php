@@ -45,7 +45,7 @@ class Music extends Model
      */
     public function comments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class)->orderBy('created_at','desc');
     }
 
     /**
@@ -83,7 +83,6 @@ class Music extends Model
             '2' => '高',
             '9' => '最高',
         ];
-        // return $levels[array_search($this->level, $levels)];
         return $levels[$this->level];
     }
 

@@ -19,17 +19,19 @@
                 <dl>
                     <dt>曲の難易度：</dt>
                     <dd>
-                        {{Form::radio('radiolevel', '0', true, ['class'=>'form-check-input','id'=>'radioLevel0'])}}{!! Form::label('radioLevel0','低 初心者でも弾けるレベル') !!}<br>
-                        {{Form::radio('radiolevel', '1', false, ['class'=>'form-check-input','id'=>'radioLevel1'])}}{!! Form::label('radioLevel1','中 これが弾ければ脱初心者') !!}<br>
-                        {{Form::radio('radiolevel', '2', false, ['class'=>'form-check-input','id'=>'radioLevel2'])}}{!! Form::label('radioLevel2','高 結構練習しないと弾けない') !!}<br>
-                        {{Form::radio('radiolevel', '9', false, ['class'=>'form-check-input','id'=>'radioLevel9'])}}{!! Form::label('radioLevel9','最高 神わざレベル') !!}
+                        <div class="form-group form-check">
+                            {{Form::radio('radiolevel', '0', (old('radiolevel') == '0' ? true : ($level == 0)) ? true : false, ['class'=>'form-check-input','id'=>'radioLevel0'])}}{!! Form::label('radioLevel0','低 初心者でも弾けるレベル') !!}<br>
+                            {{Form::radio('radiolevel', '1', (old('radiolevel') == '1' ? true : ($level == 1)) ? true : false, ['class'=>'form-check-input','id'=>'radioLevel1'])}}{!! Form::label('radioLevel1','中 これが弾ければ脱初心者') !!}<br>
+                            {{Form::radio('radiolevel', '2', (old('radiolevel') == '2' ? true : ($level == 2)) ? true : false, ['class'=>'form-check-input','id'=>'radioLevel2'])}}{!! Form::label('radioLevel2','高 結構練習しないと弾けない') !!}<br>
+                            {{Form::radio('radiolevel', '9', (old('radiolevel') == '9' ? true : ($level == 9)) ? true : false, ['class'=>'form-check-input','id'=>'radioLevel9'])}}{!! Form::label('radioLevel9','最高 神わざレベル') !!}
+                        </div>
                     </dd>
                 </dl>
                 <dl>
                     <dt>ジャンル：</dt>
                     <dd>
                         @foreach($genres as $genre)
-                            <input type="checkbox" id="checkGenre{{$genre->id}}" name="checkGenre[]" value="{{$genre->id}}"> <label for="checkGenre{{$genre->id}}">{{$genre->name}}</label>　
+                            <input type="checkbox" id="checkGenre{{$genre->id}}" name="checkGenre[]" value="{{$genre->id}}" {{ (is_array(old('checkGenre')) && in_array($genre->id, old('checkGenre'))) ? 'checked' : '' }}> <label for="checkGenre{{$genre->id}}">{{$genre->name}}</label>　
                         @endforeach
                     </dd>
                 </dl>
@@ -37,7 +39,7 @@
                     <dt>プレイスタイル：</dt>
                     <dd>
                         @foreach($styles as $style)
-                            <input type="checkbox" id="checkStyle{{$style->id}}" name="checkStyle[]" value="{{$style->id}}"> <label for="checkStyle{{$style->id}}">{{$style->name}}</label>　
+                            <input type="checkbox" id="checkStyle{{$style->id}}" name="checkStyle[]" value="{{$style->id}}" {{ (is_array(old('checkStyle')) && in_array($style->id, old('checkStyle'))) ? 'checked' : '' }}> <label for="checkStyle{{$style->id}}">{{$style->name}}</label>　
                         @endforeach
                     </dd>
                 </dl>
@@ -54,7 +56,7 @@
                     </dd>
                 </dl>
 
-                <div>
+                <div class="mt-4">
                     {!! Form::submit('投稿する', ['class' => 'btn btn_entry btn-block']) !!}
                 </div>
             </div>

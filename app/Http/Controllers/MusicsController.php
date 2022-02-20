@@ -15,15 +15,30 @@ class MusicsController extends Controller
      */
     public function index()
     {
-        $musics = Music::orderBy('created_at', 'desc')->take(20)->get();
+        // 曲を最新20件分取得
+        $musics = Music::orderBy('created_at', 'desc')->take(20)->paginate(20);
 
+        // ジャンルマスタ取得
+        $genres = \App\Genre::orderByRaw("`order` asc, id asc")->get();
+
+        // プレイスタイルマスタ取得
+        $styles = \App\Style::orderByRaw("`order` asc, id asc")->get();
+
+        // 検索ウィンドウに渡す変数群
         $search = '最新20件';
         $order = '新着順';
+        // 検索条件ウィンドウの各初期値： ToDo: MusicをNewする以外にもっと別の方法がある？
+        $condition = new Music;
+        $condition->level = -1;
 
         $data = [
             'search' => $search,
             'order' => $order,
             'musics' => $musics,
+            'condition' => $condition,
+            'genres' => $genres,
+            'styles' => $styles,
+            'result_count' => $musics->count(),
         ];
 
         // トップページ表示
@@ -35,8 +50,10 @@ class MusicsController extends Controller
      */
     public function show($id)
     {
+        // 対象データ取得
         $music = \App\Music::findOrFail($id);
 
+        // コメントデータにコメントを投稿したユーザの不足している情報（ユーザ名、メールアドレス：Gravatar用）を追加
         foreach($music->comments as $comment) {
             if (is_null($comment->user_id)){
                 $comment->username = 'ゲスト';
@@ -62,7 +79,11 @@ class MusicsController extends Controller
         // プレイスタイルマスタ取得
         $styles = \App\Style::orderByRaw("`order` asc, id asc")->get();
 
+        // レベル 初期値設定
+        $level = 0;
+
         $data = [
+            'level' => $level,
             'genres' => $genres,
             'styles' => $styles,
         ];
@@ -359,6 +380,137 @@ class MusicsController extends Controller
 
     }
 
+    /**
+     * 検索＆結果表示
+     */
+    public function result(Request $req)
+    {
+        // echo "曲名：" . $req->music_name . "<br>";
+        // echo "アーティスト：" . $req->artist . "<br>";
+        // echo "アルバム：" . $req->album . "<br>";
+        // echo "難易度：" . $req->radiolevel . "<br>";
+        // echo "ジャンル：" . print_r($req->checkGenre) . "<br>";
+        // echo "スタイル：" . print_r($req->checkStyle) . "<br>";
+        // echo "文字列：" . $req->explanation . "<br>";
+
+        // 検索条件文 初期化
+        $search = '';
+
+        // 条件検索 ベース部分
+        $query = DB::table('musics')
+                ->leftJoin('music_genre', 'musics.id', '=', 'music_genre.music_id')
+                ->leftJoin('music_style', 'musics.id', '=', 'music_style.music_id')
+                ->select('musics.id')
+                ->groupBy('musics.id');
+
+        // 曲名に入力があったら
+        if (isset($req->music_name) && ($req->music_name !== '')){
+            $srch_music_name = $this->cnvSearchStrings($req->music_name);
+            $query->where('search_music_name', 'like', "%$srch_music_name%");
+            $search .= $req->music_name . '／';
+        }
+
+        // アーティストに入力があったら
+        if (isset($req->artist) && ($req->artist !== '')){
+            $srch_artist = $this->cnvSearchStrings($req->artist);
+            $query->where('search_artist', 'like', "%$srch_artist%");
+            $search .= $req->artist . '／';
+        }
+
+        // アルバムに入力があったら
+        if (isset($req->album) && ($req->album !== '')){
+            $src_album = $this->cnvSearchStrings($req->album);
+            $query->where('search_album', 'like', "%$src_album%");
+            $search .= $req->album . '／';
+        }
+
+        // 曲の難易度に入力があったら
+        if (isset($req->radiolevel)){
+            $query->where('level', '=', $req->radiolevel);
+            // 曲の難易度名取得 ToDo:もっとスマートにしたい
+            $levelName = '';
+            switch($req->radiolevel){
+                case 0:
+                    $levelName = '低';break;
+                case 1:
+                    $levelName = '中';break;
+                case 2:
+                    $levelName = '高';break;
+                case 9:
+                    $levelName = '最高';break;
+            }
+            $search .= $levelName . '／';
+        }
+
+        // ジャンルに入力があったら
+        if (is_array($req->checkGenre)){
+            $query->whereIn('music_genre.genre_id',$req->checkGenre);
+            // ジャンル名取得
+            foreach($req->checkGenre as $genre){
+                $search .= \App\Genre::find($genre)->name . ',';
+            }
+            // 検索条件文整理
+            $search = rtrim($search, ',');      // 末尾の','を削除
+            $search .= '／';                    // 「／」追加
+        }
+
+        // プレイスタイルに入力があったら
+        if (is_array($req->checkStyle)){
+            $query->whereIn('music_style.style_id',$req->checkStyle);
+            // プレイスタイル名取得
+            foreach($req->checkStyle as $style){
+                $search .= \App\Style::find($style)->name . ',';
+            }
+            // 検索条件文整理
+            $search = rtrim($search, ',');      // 末尾の','を削除
+            $search .= '／';                    // 「／」追加
+        }
+
+        // 「この文字列を含む」に入力があったら
+        if (isset($req->explanation) && ($req->explanation !== '')){
+            $src_texts = $this->cnvSearchStrings($req->explanation);
+            $query->where('search_texts', 'like', "%$src_texts%");
+            $search .= $req->explanation . '／';
+        }
+
+        // 検索条件文末尾に残る「／」を除去
+        $search = rtrim($search, '／');
+
+        // 検索 -> idの配列として結果を取得
+        $musics_ids = $query->get()->pluck('id')->toArray();
+        // print_r($musics_ids);
+        // exit();
+
+        // 上で取得したidの配列で内容を取得
+        $musics = Music::whereIn('id', $musics_ids)->orderBy('created_at', 'desc')->paginate(10);
+
+        // ジャンルマスタ取得
+        $genres = \App\Genre::orderByRaw("`order` asc, id asc")->get();
+
+        // プレイスタイルマスタ取得
+        $styles = \App\Style::orderByRaw("`order` asc, id asc")->get();
+
+        // 検索ウィンドウに渡す変数群をセット
+        if ($search === ''){ $search = '全件'; }
+        $order = '新着順';
+        $condition = new Music;
+        $condition->level = -1;
+
+        $data = [
+            'search' => $search,
+            'order' => $order,
+            'musics' => $musics,
+            'condition' => $condition,
+            'genres' => $genres,
+            'styles' => $styles,
+            'result_count' => count($musics_ids),
+        ];
+
+        // 検索結果ページ表示
+        return view('musics.result', $data);
+
+    }
+
 
     /**
      * 検索用項目文字列生成
@@ -370,6 +522,7 @@ class MusicsController extends Controller
         $str = mb_convert_kana($str, "KVas");   // 半角カタカナを全角カタカナへ（濁点考慮）、全角英数字を半角英数字へ、全角スペースを半角スペースへ変換
         $str = mb_strtolower($str);             // 英小文字へ変換
         $str = str_replace(" ","",$str);        // 半角空白削除
+        $str = str_replace("・","",$str);       // 中黒削除
         return $str;
     }
 }

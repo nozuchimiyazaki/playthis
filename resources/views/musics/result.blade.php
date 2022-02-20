@@ -1,7 +1,7 @@
 @extends('layouts.base')
 
 @section('content')
-    <h1 class="app_title">トップページ</h1>
+    <h1 class="app_title">検索結果</h1>
 
     <div class="common_wrap">
         <div class="guide_area">
