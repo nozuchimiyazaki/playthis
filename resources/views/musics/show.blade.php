@@ -1,5 +1,7 @@
 @extends('layouts.base')
 
+@section('pagetitle','曲の詳細表示')
+
 @section('content')
     <div class="common_wrap">
         <div class="music_info_desc">

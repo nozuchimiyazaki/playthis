@@ -1,5 +1,7 @@
 @extends('layouts.adminbase')
 
+@section('pagetitle','ユーザ情報編集')
+
 @section('content')
     <h1 class="admin_title">ユーザ情報編集：</h1>
 

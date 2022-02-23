@@ -1,5 +1,7 @@
 @extends('layouts.adminbase')
 
+@section('pagetitle','ユーザ選択')
+
 @section('content')
 
     <div class="common_wrap">

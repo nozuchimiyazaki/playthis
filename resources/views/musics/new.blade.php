@@ -1,5 +1,7 @@
 @extends('layouts.base')
 
+@section('pagetitle','おすすめ曲の投稿')
+
 @section('content')
     <div class="common_wrap">
         {!! Form::open(['route' => ['music.store']]) !!}

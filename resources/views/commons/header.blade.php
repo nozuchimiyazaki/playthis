@@ -42,7 +42,7 @@
                 @endif
                  さん
             </div>
-            <img class="rounded-circle" src="{{ Gravatar::get($email, ['size' => 30]) }}" alt=""><br>ゲストID: {{ session('guest_id') }}
+            <img class="rounded-circle" src="{{ Gravatar::get($email, ['size' => 30]) }}" alt="">
 
         </div>
     </div>

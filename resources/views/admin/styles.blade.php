@@ -1,5 +1,7 @@
 @extends('layouts.adminbase')
 
+@section('pagetitle','プレイスタイル登録')
+
 @section('content')
 
     <div class="common_wrap">

@@ -1,5 +1,7 @@
 @extends('layouts.base')
 
+@section('pagetitle','投稿した曲一覧')
+
 @section('content')
 
     <div class="common_wrap">

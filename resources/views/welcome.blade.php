@@ -1,5 +1,7 @@
 @extends('layouts.base')
 
+@section('pagetitle','HOME')
+
 @section('content')
     <h1 class="app_title">トップページ</h1>
 

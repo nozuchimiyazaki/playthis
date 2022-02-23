@@ -1,5 +1,7 @@
 @extends('layouts.base')
 
+@section('pagetitle','曲の編集')
+
 @section('content')
     <div class="common_wrap">
         {!! Form::open(['route' => ['music.update', $music->id]]) !!}

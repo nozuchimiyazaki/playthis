@@ -1,5 +1,7 @@
 @extends('layouts.base')
 
+@section('pagetitle','ログイン')
+
 @section('content')
     <h1 class="app_title">ログイン：</h1>
 

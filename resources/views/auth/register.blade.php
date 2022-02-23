@@ -1,5 +1,7 @@
 @extends('layouts.base')
 
+@section('pagetitle','ユーザ登録')
+
 @section('content')
     <h1 class="app_title">ユーザ登録：</h1>
 

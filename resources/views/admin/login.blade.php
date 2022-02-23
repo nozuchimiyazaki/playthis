@@ -1,5 +1,7 @@
 @extends('layouts.adminbase')
 
+@section('pagetitle','管理者ログイン')
+
 @section('content')
     <h1 class="app_title">管理者ログイン：</h1>
 

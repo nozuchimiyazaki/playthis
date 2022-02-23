@@ -1,5 +1,7 @@
 @extends('layouts.adminbase')
 
+@section('pagetitle','管理者メニュー')
+
 @section('content')
     <h1 class="admin_title">管理者メニュー：</h1>
 

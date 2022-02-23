@@ -1,5 +1,7 @@
 @extends('layouts.base')
 
+@section('pagetitle','検索結果')
+
 @section('content')
     <h1 class="app_title">検索結果</h1>
 
