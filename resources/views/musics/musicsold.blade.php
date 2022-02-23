@@ -1,8 +1,8 @@
 @foreach($musics as $music)
-    <a class="music_item" href="{!! route('music.show', ['id' => $music->musicid]) !!}">
+    <a class="music_item" href="{!! route('music.show', ['id' => $music->id]) !!}">
         <div class="user_info">
-            <div><img class="rounded-circle" src="{{ Gravatar::get($music->email, ['size' => 50]) }}" ></div>
-            <div class="user_name">{{ $music->username }}</div>
+            <div><img class="rounded-circle" src="{{ Gravatar::get($music->user->email, ['size' => 50]) }}" ></div>
+            <div class="user_name">{{ $music->user->name }}</div>
         </div>
 
         <div class="music_info1">
@@ -20,14 +20,14 @@
             </dl>
             <dl>
                 <dt>コメント：</dt>
-                <dd>{{ $music->comments_count }} 件</dd>
+                <dd>{{ $music->comments->count() }} 件</dd>
             </dl>
         </div>
 
         <div class="music_info2">
-            <div class="level">{{ $music->getLevelName($music->level) }}</div>
+            <div class="level">{{ $music->level_name }}</div>
             <div class="like_mark"><i class="far fa-thumbs-up"></i></div>
-            <div class="like_count">{{ $music->likes_count }}</div>
+            <div class="like_count">{{ $music->likes->count() }}</div>
         </div>
     </a>
 @endforeach
@@ -36,9 +36,9 @@
 <div class="text-center center-block">
     <div class="mt-3 mb-3">
         {{-- @if (isset($musics->links()) && ($musics->links() !== null)) --}}
-        @if ($musics->links() !== null)
+        {{-- @if ($musics->links() !== null) --}}
             {{ $musics->links() }}
-        @endif
+        {{-- @endif --}}
     </div>
     <div class="mb-4">
         <a href="{{ env('APP_ROOT')}}/">トップページへ</a>

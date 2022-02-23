@@ -7,11 +7,11 @@
         <div class="guide_area">
             <div class="guide_wrap guide_search modal_open js-modal-open">
                 <div class="guide_label">検索条件</div>
-                <div class="guide_body">{!! $search !!}</div>
+                <div class="guide_body">{{ $search }}</div>
             </div>
             <div class="guide_wrap guide_sort">
                 <div class="guide_label">並び順</div>
-                <div class="guide_body">{!! $order !!}</div>
+                <div class="guide_body">{{ $order }}</div>
             </div>
         </div>
 

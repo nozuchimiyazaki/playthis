@@ -3,12 +3,15 @@
 ************************************************************************/
 :root {
     --text-color: #333;
-    --main-color: #33cc00;
+    /* --main-color: #33cc00; */
+    --main-color: #539c35;
+    --background-color: #f4f7e1;
     --accent-color: #f77c00;
     --point-color: #f77c00;
     --background-light-color: #f7f7f7;
     --border-light-color: #c5c5c5;
     --btn-entry-color: #2172f2;
+    --admin-main-color: #00008b;
 }
 
 /***********************************************************************
@@ -21,6 +24,7 @@
     width: 100%;
     background-color: #eee;
     padding: 1rem 0;
+    z-index: 100;
 }
 .btn_wrap .btn {
     padding: 1rem 0;
@@ -51,6 +55,26 @@
     top: 0;
     left: 0;
 }
+/***********************************************************************
+    共通カラー
+************************************************************************/
+body.playthis {
+    background-color: var(--background-color);
+}
+.playthis_color {
+    color: var(--main-color);
+}
+.playthis_background_color {
+    background-color: var(--main-color);
+}
+.navbar-dark .navbar-toggler {
+    color: #fff;
+    border-color: #fff;
+}
+.navbar-dark .navbar-nav .nav-link {
+    color: #fff;
+}
+
 /***********************************************************************
     共通レイアウト
 ************************************************************************/
@@ -108,6 +132,7 @@
     width: 85%;
     position: relative;
     padding: 10px 30px 10px 10px;
+    background-color: #fff;
 }
 .guide_body:after {
     position: absolute;
@@ -188,7 +213,9 @@ span.required {
     padding: 2px 5px;
     margin-right: 5px;
 }
-
+[type=submit] {
+    font-family: "Font Awesome 5 Free";
+}
 /***********************************************************************
     Header
 ************************************************************************/
@@ -304,6 +331,9 @@ footer {
 .music_info_desc .comment_date {
     font-size: 80%;
 }
+.music_info_desc .comment_delete_label {
+    font-size: 80%;
+}
 @media screen and (min-width: 768px) {
 /* @media screen and (min-width: 992px) { */
     .music_info_desc dl {
@@ -358,4 +388,138 @@ footer {
     }
 }
 @media screen and (min-width: 768px){
+}
+/***********************************************************************
+    管理者機能：全般
+************************************************************************/
+.admin_title {
+    background-color: var(--admin-main-color);
+    color: #fff;
+    padding: 1rem 0 1rem 2rem;
+    font-size: 2rem;
+}
+.admin_color {
+    color: var(--admin-main-color);
+}
+.admin_background {
+    background-color: var(--admin-main-color);
+}
+.admin_footer {
+    padding: 1rem 0;
+}
+
+/***********************************************************************
+    管理者機能：管理者メニュー
+************************************************************************/
+.admin_menu_area {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+.admin_menu_item {
+    width: calc( 100% / 3 - 10px);
+    border: 3px solid var(--admin-main-color);
+}
+.admin_menu_item h2 {
+    display: block;
+    background-color: var(--admin-main-color);
+    color: #fff;
+    font-size: 150%;
+    text-align: center;
+    padding: 5px 0;
+}
+.admin_menu_body {
+    padding: 1rem;
+}
+.admin_menu_body li {
+    list-style: none;
+}
+
+/***********************************************************************
+    管理者機能：ユーザ選択
+************************************************************************/
+.conditions {
+    width: 100%;
+}
+.conditions dl {
+    width: 100%;
+    margin-bottom: 5px;
+}
+.conditions dt {
+    width: 100%;
+    background-color: var(--admin-main-color);
+    color: #fff;
+    padding: 5px;
+    border-radius: 5px;
+}
+.conditions dd {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+.user_list {
+    width: 100%;
+}
+.user_list th {
+    background-color: var(--admin-main-color);
+    color: #fff;
+    text-align: center;
+    border-right: 2px solid #fff;
+    padding: 7px;
+}
+.user_list td {
+    padding: 10px;
+}
+.user_list .user_id {
+    width: 10%;
+}
+.user_list .username {
+    width: 40%;
+}
+.user_list .email {
+    width: 50%;
+}
+@media screen and (min-width: 768px) {
+    .conditions dl {
+        display: table;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    .conditions dt {
+        display: table-cell;
+        width: 20%;
+        text-align: right;
+        background-color: #fff;
+        color: var(--admin-main-color);
+    }
+    .conditions dd {
+        display: table-cell;
+    }
+}
+/***********************************************************************
+    管理者機能：プレイスタイル登録
+************************************************************************/
+.styles_list {
+    width: 100%;
+}
+.styles_list th {
+    background-color: var(--admin-main-color);
+    color: #fff;
+    text-align: center;
+    border-right: 2px solid #fff;
+    padding: 7px;
+}
+.styles_list td {
+    padding: 10px;
+}
+.styles_list .style_id {
+    width: 10%;
+}
+.styles_list .stylename {
+    width: 60%;
+}
+.styles_list .order {
+    width: 10%;
+}
+.styles_list .edit {
+    width: 10%;
 }

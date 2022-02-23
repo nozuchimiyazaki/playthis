@@ -44,28 +44,27 @@
                 <dd>
                     <div class="row">
                         <div class="col-9 author_area">
-                            <div><img class="rounded-circle" src="{{ Gravatar::get($music->user->email, ['size' => 50]) }}" ></div>
+                            <a href="{!! route('user.musics', ['id' => $music->user_id]) !!}"><img class="rounded-circle" src="{{ Gravatar::get($music->user->email, ['size' => 50]) }}" ></a>
                             <div class="user_name">{{ $music->user->name }}</div>
                             <div class="created">{{ $music->created_at }}</div>
                         </div>
                         <div class="col-3 likes_area">
-                            @if (Auth::check())
-                                <?php $likeOn = false; ?>
-                                @foreach($music->likes as $like)
-                                    @if ($like->user_id == \Auth::id())
-                                        <?php $likeOn = true; ?>
-                                    @endif
-                                @endforeach
-                                @if ($likeOn)
-                                    <div class="like_mark"><i class="fas fa-thumbs-up"></i></div>
-                                @else
-                                    <div class="like_mark"><i class="far fa-thumbs-up"></i></div>
-                                @endif
+                            @if ($music->hasLike)
+                                <div class="like_mark">
+                                    {!! Form::open(['route' => ['likes.del', $music->id]]) !!}
+                                        <input type="image" name="submit_dellike" src="{{ env('APP_ROOT')}}/img/likeon.png">
+                                    {!! Form::close() !!}
+                                </div>
                             @else
-                                <div class="like_mark"><i class="far fa-thumbs-up"></i></div>
+                                <div class="like_mark">
+                                    {!! Form::open(['route' => ['likes.add', $music->id]]) !!}
+                                        <input type="image" name="submit_addlike" src="{{ env('APP_ROOT')}}/img/likeoff.png">
+                                    {!! Form::close() !!}
+                                </div>
                             @endif
                             <div class="like_count">{{ $music->likes->count() }}</div>
                         </div>
+                    </div>
                 </dd>
             </dl>
             <dl>
@@ -129,7 +128,7 @@
                 <div class="common_wrap">
                     <div class="row">
                         <div class="col-6">
-                            <a class="btn btn_entry btn-block" href="{!! route('musics.edit', $music->id) !!}">編集する</a>
+                            <a class="btn btn_entry btn-block" href="{!! route('music.edit', $music->id) !!}">編集する</a>
                         </div>
                         <div class="col-6">
                             <a class="btn btn_entry btn-block" href="#">削除する</a>

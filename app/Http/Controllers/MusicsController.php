@@ -11,20 +11,55 @@ use DB;
 class MusicsController extends Controller
 {
     /**
+     * YouTube URL格納 最大件数
+     */
+    protected $youtubeUrlMaxCount = 3;
+
+
+    /**
      * トップページの一覧を表示
      */
     public function index()
     {
-        // 曲を最新20件分取得
-        $musics = Music::orderBy('created_at', 'desc')->take(20)->paginate(20);
+        /**
+         * ゲスト用識別子(guest_id)の操作
+         */
+         // 保管されているクッキー値を取得
+        $guest_id = \Cookie::get('guest_id');
+        if ($guest_id == '') {
+            // クッキーを持っていない場合は新たに作成
+            // 現在時刻をミリ秒単位で取得
+            $guest_id = ceil(microtime(true)*1000);
+        }
+        // クッキーを更新（有効期限:365日）
+        \Cookie::queue('guest_id' ,$guest_id, time() + (365 * 24 * 60 * 60));
 
-        // ジャンルマスタ取得
+        // セッション変数に格納
+        session()->put('guest_id',$guest_id);
+
+        /**
+         * 曲を最新20件分取得
+         */
+        $musics = Music::orderBy('created_at', 'desc')->take(20)->paginate(20);
+        // ベース部分を取得
+        $musics = new Music();
+        $musicListQuery = $musics->musicListQuery();
+        // ユーザが投稿した曲の一覧を取得
+        $musics = $musicListQuery->orderByRaw("`musics`.`created_at` desc, `musics`.`id` asc")->paginate(10);
+
+        /**
+         * ジャンルマスタ取得
+         */
         $genres = \App\Genre::orderByRaw("`order` asc, id asc")->get();
 
-        // プレイスタイルマスタ取得
+        /**
+         * プレイスタイルマスタ取得
+         */
         $styles = \App\Style::orderByRaw("`order` asc, id asc")->get();
 
-        // 検索ウィンドウに渡す変数群
+        /**
+         * 検索ウィンドウに渡す変数群
+         */
         $search = '最新20件';
         $order = '新着順';
         // 検索条件ウィンドウの各初期値： ToDo: MusicをNewする以外にもっと別の方法がある？
@@ -38,7 +73,9 @@ class MusicsController extends Controller
             'condition' => $condition,
             'genres' => $genres,
             'styles' => $styles,
-            'result_count' => $musics->count(),
+            // 'result_count' => $musics->count(),
+            'result_count' => $musics->total(),
+            'guest_id' => $guest_id,
         ];
 
         // トップページ表示
@@ -50,10 +87,30 @@ class MusicsController extends Controller
      */
     public function show($id)
     {
-        // 対象データ取得
+        /**
+         * 対象データ取得
+         */
         $music = \App\Music::findOrFail($id);
 
-        // コメントデータにコメントを投稿したユーザの不足している情報（ユーザ名、メールアドレス：Gravatar用）を追加
+        /**
+         * 当該投稿曲に対し、過去にいいねしたかどうか($music->hasLike)取得
+         */
+        $music->hasLike = false;
+        if (\Auth::check()){
+            // ログインしている場合: ログインユーザidで検索
+            if ($music->likes()->where('user_id', '=', \Auth::id())->count() > 0 ){
+                $music->hasLike = true;
+            }
+        } else {
+            // ログインしていない場合: セッション変数に持つゲストidで検索
+            if ($music->likes()->where('guest_identification', '=', session()->get('guest_id'))->count() > 0 ){
+                $music->hasLike = true;
+            }
+        }
+
+        /**
+         * コメントデータにコメントを投稿したユーザの不足している情報（ユーザ名、メールアドレス：Gravatar用）を追加
+         */
         foreach($music->comments as $comment) {
             if (is_null($comment->user_id)){
                 $comment->username = 'ゲスト';
@@ -73,10 +130,14 @@ class MusicsController extends Controller
      */
     public function create()
     {
-        // ジャンルマスタ取得
+        /**
+         * ジャンルマスタ取得
+         */
         $genres = \App\Genre::orderByRaw("`order` asc, id asc")->get();
 
-        // プレイスタイルマスタ取得
+        /**
+         * プレイスタイルマスタ取得
+         */
         $styles = \App\Style::orderByRaw("`order` asc, id asc")->get();
 
         // レベル 初期値設定
@@ -95,7 +156,9 @@ class MusicsController extends Controller
      */
     public function store(Request $req)
     {
+        //
         // バリデーション
+        //
         $req->validate([
             'music_name' => 'required|max:255',
             'artist' => 'required|max:255',
@@ -108,11 +171,16 @@ class MusicsController extends Controller
         // print_r($req->checkGenre);
         // var_dump($req->checkGenre);
         // exit();
-        // トランザクション開始
+
+        /**
+         * トランザクション開始
+         */
         DB::beginTransaction();
 
         try{
-            // 認証済みユーザの投稿として保存
+            /**
+             * 曲投稿保存
+             */
             $music = $req->user()->musics()->create([
                 'music_name' => $req->music_name,
                 'artist' => $req->artist,
@@ -126,18 +194,24 @@ class MusicsController extends Controller
 
             ]);
 
-            // ジャンル保存
+            /**
+             * ジャンル保存
+             */
             foreach($req->checkGenre as $genre){
                 $music->genres()->attach($genre);
             }
 
-            // プレイスタイル保存
+            /**
+             * プレイスタイル保存
+             */
             foreach($req->checkStyle as $style){
                 $music->styles()->attach($style);
             }
 
-            // YouTube URL保存
-            for ($i=0;$i<3;$i++){
+            /**
+             * YouTube URL保存（３件固定）
+             */
+            for ($i=0;$i<$this->youtubeUrlMaxCount;$i++){
                 if (!is_null($req->{"url" . ($i+1)}) && ($req->{"url" . ($i+1)} !== '')){
                     $music->movies()->create([
                         'url' => $req->{"url" . ($i+1)},
@@ -160,11 +234,13 @@ class MusicsController extends Controller
     /**
      * コメント投稿
      */
-    public function commentstore(Request $req, $music_id){
+    public function commentstore(Request $req, $music_id)
+    {
+
         $music = Music::findOrFail($music_id);
 
         $music->comments()->create([
-            'user_id' => \Auth::id(),
+            'user_id' => \Auth::id(),           // ログイン時はユーザid, 未ログイン時にはnullがセットされる。
             'comment_text' => $req->comment_text,
         ]);
 
@@ -177,18 +253,40 @@ class MusicsController extends Controller
      */
     public function edit($music_id)
     {
+        /**
+         * 対象曲投稿データ取得
+         */
         $music = Music::findOrFail($music_id);
 
-        // YouTube URL取得
+        /**
+         * コメントデータにコメントを投稿したユーザの不足している情報（ユーザ名、メールアドレス：Gravatar用）を追加
+         */
+        foreach($music->comments as $comment) {
+            if (is_null($comment->user_id)){
+                $comment->username = 'ゲスト';
+                $comment->email = 'dummy@dummy.com';
+            } else {
+                $comm = \App\User::findOrFail($comment->user_id);
+                $comment->username = $comm->name;
+                $comment->email = $comm->email;
+            }
+        }
+
+        /**
+         * 保存済みYouTube URL取得
+         */
         $cnt = 1;
         foreach($music->movies as $movie){
-            if ($cnt > 3){
+            if ($cnt > $this->youtubeUrlMaxCount){
                 break;
             }
             $music->{'url'.$cnt} = $movie->url;
             $cnt++;
         }
-        // ジャンルマスタ取得
+
+        /**
+         * ジャンルマスタ取得＆入力値セット
+         */
         $genres = \App\Genre::orderByRaw("`order` asc, id asc")->get();
         // ジャンル入力値取得
         foreach($genres as $genre){
@@ -201,7 +299,9 @@ class MusicsController extends Controller
             }
         }
 
-        // プレイスタイルマスタ取得
+        /**
+         * プレイスタイルマスタ取得＆入力値セット
+         */
         $styles = \App\Style::orderByRaw("`order` asc, id asc")->get();
         // プレイスタイル入力値取得
         foreach($styles as $style){
@@ -214,6 +314,9 @@ class MusicsController extends Controller
             }
         }
 
+        /**
+         * 編集ページ表示
+         */
         $data = [
             'music' => $music,
             'genres' => $genres,
@@ -227,7 +330,9 @@ class MusicsController extends Controller
      */
     public function update(Request $req, $music_id)
     {
-        // バリデーション
+        /**
+         * バリデーション
+         */
         $req->validate([
             'music_name' => 'required|max:255',
             'artist' => 'required|max:255',
@@ -237,14 +342,20 @@ class MusicsController extends Controller
             'url3' => 'max:255',
         ]);
 
-        // トランザクション開始
+        /**
+         * トランザクション開始
+         */
         DB::beginTransaction();
 
         try{
-            // 編集対象データを取得
+            /**
+             * 編集対象データを取得
+             */
             $music = Music::findOrFail($music_id);
 
-            // 投稿として保存
+            /**
+             * 曲投稿保存
+             */
             $music->update([
                 'music_name' => $req->music_name,
                 'artist' => $req->artist,
@@ -258,7 +369,9 @@ class MusicsController extends Controller
 
             ]);
 
-            // ジャンル保存
+            /**
+             * ジャンル保存
+             */
             $genres = \App\Genre::OrderBy('id')->get();
             foreach($genres as $genre){
                 $flgSaveGenre = false;
@@ -294,7 +407,9 @@ class MusicsController extends Controller
                 }
             }
 
-            // プレイスタイル保存
+            /**
+             * プレイスタイル保存
+             */
             $styles = \App\Style::OrderBy('id')->get();
             foreach($styles as $style){
                 $flgSaveStyle = false;
@@ -330,8 +445,10 @@ class MusicsController extends Controller
                 }
             }
 
-            // YouTube URL保存
-            for ($i=0;$i<3;$i++){
+            /**
+             * YouTube URL保存
+             */
+            for ($i=0;$i<$this->youtubeUrlMaxCount;$i++){
                 $flgSaveUrl = false;
                 $flgInputUrl = false;
 
@@ -367,6 +484,34 @@ class MusicsController extends Controller
                 }
             }
 
+            /**
+             * コメント削除希望更新
+             */
+
+            // 入力で削除希望欄にチェックされた情報を配列に入れる（１件もチェックされなかった場合も以降の処理を回すため）
+            $arrInputComments = [];
+            if (is_array($req->checkComment)) {
+                $arrInputComments = $req->checkComment;
+            }
+
+            // 編集ページからの入力に当該スタイルのチェックはあるか？
+            foreach($music->comments as $comment){
+                if (in_array($comment->id, $arrInputComments)){
+                    // 保存されているコメントに入力でチェックがつけられていれば、削除希望欄に日付を入れる
+                    $comment = \App\Comment::find($comment->id)->update([
+                        'delete_request' => date('Y-m-d H:i:s'),
+                    ]);
+                } else {
+                    // 保存されているコメントに入力でチェックがつけられていない場合
+                    if (!is_null($comment->delete_request) || ($comment->delete_request !== '')){
+                        // 削除希望欄に入っている日付をクリアする
+                        $comment = \App\Comment::find($comment->id)->update([
+                            'delete_request' => null,
+                        ]);
+                    }
+                }
+            }
+
         }catch(Exception $e){
             // ロールバック
             DB::rollback();
@@ -375,7 +520,9 @@ class MusicsController extends Controller
         // トランザクションコミット
         DB::commit();
 
+        //
         // 詳細ページへリダイレクトさせる
+        //
         return redirect('musics/' . $music_id . '/')->with('result', '１件更新されました。');
 
     }
@@ -396,12 +543,9 @@ class MusicsController extends Controller
         // 検索条件文 初期化
         $search = '';
 
-        // 条件検索 ベース部分
-        $query = DB::table('musics')
-                ->leftJoin('music_genre', 'musics.id', '=', 'music_genre.music_id')
-                ->leftJoin('music_style', 'musics.id', '=', 'music_style.music_id')
-                ->select('musics.id')
-                ->groupBy('musics.id');
+        // 条件検索ベース部分を取得
+        $musics = new Music();
+        $query = $musics->musicListQuery();
 
         // 曲名に入力があったら
         if (isset($req->music_name) && ($req->music_name !== '')){
@@ -425,7 +569,7 @@ class MusicsController extends Controller
         }
 
         // 曲の難易度に入力があったら
-        if (isset($req->radiolevel)){
+        if (isset($req->radiolevel) && ((int)$req->radiolevel !== -1)){
             $query->where('level', '=', $req->radiolevel);
             // 曲の難易度名取得 ToDo:もっとスマートにしたい
             $levelName = '';
@@ -476,41 +620,147 @@ class MusicsController extends Controller
         // 検索条件文末尾に残る「／」を除去
         $search = rtrim($search, '／');
 
-        // 検索 -> idの配列として結果を取得
-        $musics_ids = $query->get()->pluck('id')->toArray();
-        // print_r($musics_ids);
-        // exit();
-
         // 上で取得したidの配列で内容を取得
-        $musics = Music::whereIn('id', $musics_ids)->orderBy('created_at', 'desc')->paginate(10);
+        // $musics_ids = $query->get()->pluck('id')->toArray();
+        $musicsList = $query->orderByRaw("`musics`.`created_at` desc, `musics`.`id` asc")->paginate(10);
 
-        // ジャンルマスタ取得
+        /**
+         * ジャンルマスタ取得
+         */
         $genres = \App\Genre::orderByRaw("`order` asc, id asc")->get();
+        // ジャンル入力値取得
+        if (is_array($req->checkGenre)){
+            foreach($genres as $genre){
+                $genre->selected = false;
+                foreach($req->checkGenre as $inputGenre){
+                    // if ($genre->id == $inputGenre->id){
+                    if ($genre->id == $inputGenre){
+                            $genre->selected = true;
+                        break;
+                    }
+                }
+            }
+        }
 
-        // プレイスタイルマスタ取得
+        /**
+         * プレイスタイルマスタ取得
+         */
         $styles = \App\Style::orderByRaw("`order` asc, id asc")->get();
+        // プレイスタイル入力値取得
+        if (is_array($req->checkStyle)){
+            foreach($styles as $style){
+                $style->selected = false;
+                foreach($req->checkStyle as $inputStyle){
+                    if ($style->id == $inputStyle){
+                        $style->selected = true;
+                        break;
+                    }
+                }
+            }
+        }
 
-        // 検索ウィンドウに渡す変数群をセット
+        /**
+         * 検索ウィンドウに渡す変数群をセット
+         */
         if ($search === ''){ $search = '全件'; }
         $order = '新着順';
+        // 前回入力した検索条件をセット
         $condition = new Music;
-        $condition->level = -1;
+        $condition->music_name = $req->music_name;
+        $condition->artist = $req->artist;
+        $condition->album = $req->album;
+        $condition->level = $req->radiolevel;
+        $condition->explanation = $req->explanation;
 
+        /**
+         * 検索結果ページ表示
+         */
         $data = [
             'search' => $search,
             'order' => $order,
-            'musics' => $musics,
+            'musics' => $musicsList,
             'condition' => $condition,
             'genres' => $genres,
             'styles' => $styles,
-            'result_count' => count($musics_ids),
+            'result_count' => $musicsList->total(),
         ];
 
-        // 検索結果ページ表示
         return view('musics.result', $data);
 
     }
 
+    /**
+     * いいねを追加
+     */
+    public function addLike($music_id)
+    {
+        if (\Auth::check()){
+            // ログイン済みの場合
+            \App\Like::create([
+                'music_id' => $music_id,
+                'user_id' => \Auth::id(),
+            ]);
+        } else {
+            // ゲストの場合：セッションのゲストIDをセット
+            \App\Like::create([
+                'music_id' => $music_id,
+                'guest_identification' => session('guest_id'),
+            ]);
+        }
+        return back();
+    }
+
+    /**
+     * いいねを取り消し
+     */
+    public function delLike($music_id)
+    {
+        if (\Auth::check()){
+            // ログイン済みの場合
+            $like = \App\Like::where('music_id', '=', $music_id)->where('user_id', '=', \Auth::id());
+            $like->delete();
+        } else {
+            // ゲストの場合
+            $like = \App\Like::where('music_id', '=', $music_id)->where('guest_identification', '=', session('guest_id'));
+            $like->delete();
+        }
+        return back();
+    }
+
+    /**
+     * ユーザが投稿した曲一覧
+     */
+    public function usermusics($userId)
+    {
+        /**
+         * ユーザ情報取得
+         */
+        $user = \App\User::findorFail($userId);
+
+        /**
+         * ユーザが投稿した曲の一覧を取得
+         */
+
+        // ベース部分を取得
+        $musics = new Music();
+        $musicListQuery = $musics->musicListQuery();
+
+        // パラメータで指定されたユーザの曲を検索する条件付与
+        $musicListQuery->where('musics.user_id','=', $userId);
+
+        // ユーザが投稿した曲の一覧を取得
+        $musicLists = $musicListQuery->orderByRaw("`musics`.`created_at` desc, `musics`.`id` asc")->paginate(10);
+
+        $data = [
+            'user' => $user,
+            'musics' => $musicLists,
+            'result_count' => $musicLists->total(),
+        ];
+
+        // 検索結果ページ表示
+        return view('musics.usermusics', $data);
+
+    }
 
     /**
      * 検索用項目文字列生成

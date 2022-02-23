@@ -24,7 +24,8 @@
                             {{Form::radio('radiolevel', '0', (old('radiolevel') == '0' ? true: ($condition->level == 0)) ? true : false, ['class'=>'form-check-input','id'=>'radioLevel0'])}}{!! Form::label('radioLevel0','低 初心者でも弾けるレベル') !!}<br>
                             {{Form::radio('radiolevel', '1', (old('radiolevel') == '1' ? true: ($condition->level == 1)) ? true : false, ['class'=>'form-check-input','id'=>'radioLevel1'])}}{!! Form::label('radioLevel1','中 これが弾ければ脱初心者') !!}<br>
                             {{Form::radio('radiolevel', '2', (old('radiolevel') == '2' ? true: ($condition->level == 2)) ? true : false, ['class'=>'form-check-input','id'=>'radioLevel2'])}}{!! Form::label('radioLevel2','高 結構練習しないと弾けない') !!}<br>
-                            {{Form::radio('radiolevel', '9', (old('radiolevel') == '9' ? true: ($condition->level == 9)) ? true : false, ['class'=>'form-check-input','id'=>'radioLevel9'])}}{!! Form::label('radioLevel9','最高 神わざレベル') !!}
+                            {{Form::radio('radiolevel', '9', (old('radiolevel') == '9' ? true: ($condition->level == 9)) ? true : false, ['class'=>'form-check-input','id'=>'radioLevel9'])}}{!! Form::label('radioLevel9','最高 神わざレベル') !!}<br>
+                            {{Form::radio('radiolevel', '-1', (old('radiolevel') == '-1' ? true: ($condition->level == -1)) ? true : false, ['class'=>'form-check-input','id'=>'radioLevel-1'])}}{!! Form::label('radioLevel-1','全て') !!}
                         </div>
                     </dd>
                 </dl>

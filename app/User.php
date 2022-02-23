@@ -6,6 +6,9 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+
 class User extends Authenticatable
 {
     use Notifiable;
@@ -16,7 +19,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'profile',
+        'name', 'email', 'password', 'profile', 'role',
     ];
 
     /**
@@ -43,5 +46,44 @@ class User extends Authenticatable
     public function musics()
     {
         return $this->hasMany(Music::class);
+    }
+
+    /**
+     * 管理者かどうかを判断する
+     */
+    public function isAdmin()
+    {
+        if ($this->role == '0'){
+            return false;
+        } else {
+            return $this->role;
+        }
+    }
+
+    /**
+     * ユーザの一覧を取得する
+     */
+    public function getUsers(Request $req)
+    {
+        $users = DB::table('users');
+
+        // id欄に入力あり
+        if (isset($req->id) && ($req->id != '')){
+            $users->where('id', '=', $req->id);
+        }
+
+        // name欄に入力あり
+        if (isset($req->name) && ($req->name != '')){
+            $users->where('name', 'like', "%$req->name%");
+        }
+
+        // email欄に入力あり
+        if (isset($req->email) && ($req->email != '')){
+            $users->where('email', 'like', "%$req->email%");
+        }
+
+        $result = $users->orderBy('id')->paginate(10);
+
+        return $result;
     }
 }

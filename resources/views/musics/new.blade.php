@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="common_wrap">
-        {!! Form::open(['route' => ['store']]) !!}
+        {!! Form::open(['route' => ['music.store']]) !!}
             <div class="music_info_desc">
                 <dl>
                     <dt>{!! Form::label('music_name','曲名：') !!}</dt>

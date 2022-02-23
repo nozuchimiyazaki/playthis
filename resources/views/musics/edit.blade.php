@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="common_wrap">
-        {!! Form::open(['route' => ['musics.update', $music->id]]) !!}
+        {!! Form::open(['route' => ['music.update', $music->id]]) !!}
             <div class="music_info_desc">
                 <dl>
                     <dt>{!! Form::label('music_name','曲名：') !!}</dt>
@@ -53,6 +53,40 @@
                         {!! Form::text('url1', old('url1', isset($music->url1) ? $music->url1 : ''), ['class' => 'form-control']) !!}
                         {!! Form::text('url2', old('url2', isset($music->url2) ? $music->url2 : ''), ['class' => 'form-control']) !!}
                         {!! Form::text('url3', old('url3', isset($music->url3) ? $music->url3 : ''), ['class' => 'form-control']) !!}
+                    </dd>
+                </dl>
+
+                <dl>
+                    <dt>コメント：</dt>
+                    <dd>
+                        {{ $music->comments->count() }} 件<br>
+
+                        @foreach($music->comments as $comment)
+                            <div class="row">
+                                <div class="col-1 comment_avatar">
+                                    <img class="rounded-circle align-middle" src="{{ Gravatar::get($comment->email, ['size' => 25]) }}" alt="">
+                                </div>
+                                <div class="col-11">
+                                    <div class="row comment_meta">
+                                        <div class="col-10 comment_username">
+                                            {{ $comment->username}}
+                                        </div>
+                                        <div class="col-2 text-right comment_date">
+                                            {{ $comment->created_at->format('Y/m/d') }}
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-10 comment_text">
+                                            {!! nl2br(htmlspecialchars($comment->comment_text)) !!}
+                                        </div>
+                                        <div class="col-2 comment_delete">
+                                            <input type="checkbox" id="checkComment{{ $comment->id }}" name="checkComment[]" value="{{$comment->id}}" {{ (is_array(old('checkComment')) && in_array($comment->id, old('checkComment'))) ? 'checked' : (($comment->delete_request != '') ? 'checked' : '') }}> <label for="checkComment{{$comment->id}}" class="comment_delete_label">削除希望</label>　
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                        @endforeach
                     </dd>
                 </dl>
 

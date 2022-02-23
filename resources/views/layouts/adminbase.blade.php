@@ -6,15 +6,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.1/css/all.css">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
-        {{-- <link rel="stylesheet" href="/playthis/public/css/style.css"> --}}
         <link rel="stylesheet" href="{{ config('app.app_root') }}/css/style.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     </head>
 
-    <body class="playthis">
+    <body>
 
         {{-- ナビゲーションバー --}}
-        @include('commons.header')
+        @include('commons.adminheader')
 
         <div class="container">
             {{-- エラーメッセージ --}}
@@ -23,7 +22,7 @@
             @yield('content')
         </div>
 
-        <footer>
+        <footer class="admin_footer">
             <div class="text-center">Copyright &copy; miyazaki All Rights Reserved.</div>
         </footer>
 
