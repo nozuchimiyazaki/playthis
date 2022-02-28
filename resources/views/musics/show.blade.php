@@ -73,12 +73,14 @@
                 <dt></dt>
                 <dd>
                     @foreach($music->movies as $movie)
-                        <div class="movie_wrapper">
-                            <div class="frame_wrapper">
-                                <iframe src="https://www.youtube.com/embed/{{ $movie->youtube_id }}?modestbranding=0" frameborder="0" allowfullscreen>
-                                </iframe>
+                        @if ($movie->youtube_id != '')
+                            <div class="movie_wrapper">
+                                <div class="frame_wrapper">
+                                    <iframe src="https://www.youtube.com/embed/{{ $movie->youtube_id }}?modestbranding=0" frameborder="0" allowfullscreen>
+                                    </iframe>
+                                </div>
                             </div>
-                        </div>
+                        @endif
                     @endforeach
                 </dd>
             </dl>

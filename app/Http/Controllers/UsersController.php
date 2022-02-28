@@ -42,7 +42,7 @@ class UsersController extends Controller
         $req->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255',"unique:users,email,$id"],
-            'password' => ['present','string', 'min:4', 'confirmed'],
+            'password' => ['nullable','present','string', 'min:4', 'confirmed'],
             // ToDo: 'nowpassword' パスワード欄に入力がある場合必須で現在のパスワードと合致していること
         ]);
 
@@ -60,7 +60,7 @@ class UsersController extends Controller
         ]);
 
         // パスワードの変更
-        if (!is_null($user->password) && ($user->password !== '')){
+        if (!is_null($req->password) && ($req->password !== '')){
             $user->update([
                 'password' => Hash::make($req->password),
             ]);

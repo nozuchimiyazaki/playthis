@@ -111,7 +111,7 @@ class AdminController extends Controller
         $req->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255',"unique:users,email,$id"],
-            'password' => ['present','string', 'min:4', 'confirmed'],
+            'password' => ['nullable','present','string', 'min:4', 'confirmed'],
         ]);
 
         //
@@ -132,7 +132,7 @@ class AdminController extends Controller
         //
         // パスワードの変更
         //
-        if (!is_null($user->password) && ($user->password !== '')){
+        if (!is_null($req->password) && ($req->password !== '')){
             $user->update([
                 'password' => Hash::make($req->password),
             ]);

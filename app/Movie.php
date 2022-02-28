@@ -21,17 +21,19 @@ class Movie extends Model
     {
         $url = parse_url($this->url);
 
-        if (strpos($url['host'],'youtube.com') !== false){
-            $tmp = str_replace('v=','',$url['query']);
-            return substr($tmp, 0, strpos($tmp,'&') ? strpos($tmp,'&') : strlen($tmp));
+        if (isset($url['host'])){
+            if (strpos($url['host'],'youtube.com') !== false){
+                $tmp = str_replace('v=','',$url['query']);
+                return substr($tmp, 0, strpos($tmp,'&') ? strpos($tmp,'&') : strlen($tmp));
 
-        } elseif (strpos($url['host'],'youtu.be') !== false) {
-            $tmp = substr($url['path'],1);
-            return substr($tmp, 0, strpos($tmp,'/') ? strpos($tmp,'/') : strlen($tmp));
+            } elseif (strpos($url['host'],'youtu.be') !== false) {
+                $tmp = substr($url['path'],1);
+                return substr($tmp, 0, strpos($tmp,'/') ? strpos($tmp,'/') : strlen($tmp));
 
-        } else {
-            return '';
+            } else {
+                return '';
+            }
         }
-
+        return '';
     }
 }

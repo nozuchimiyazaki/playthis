@@ -61,10 +61,12 @@
 <script>
 $(function(){
     $('.js-modal-open').on('click', function(){
+        $('body').addClass('body_modal_open');
         $('.js-modal').fadeIn();
         return false;
     });
     $('.js-modal-close').on('click', function(){
+        $('body').removeClass('body_modal_open');
         $('.js-modal').fadeOut();
         return false;
     });

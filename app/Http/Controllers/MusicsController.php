@@ -8,6 +8,8 @@ use App\Music;
 
 use DB;
 
+use App\Rules\YouTubeUrl;
+
 class MusicsController extends Controller
 {
     /**
@@ -50,8 +52,11 @@ class MusicsController extends Controller
         /**
          * ジャンルマスタ取得
          */
-        $genres = \App\Genre::orderByRaw("`order` asc, id asc")->get();
-
+        // $genres = \App\Genre::orderByRaw("`order` asc, id asc")->get();
+        $genres = \App\Genre::orderBy('order', 'asc')->orderBy('id', 'asc')->get();
+        // $genres = \App\Genre::orderBy('order', 'asc')->orderBy('id', 'asc')->toSql();
+        // var_dump($genres);
+        // exit();
         /**
          * プレイスタイルマスタ取得
          */
@@ -163,9 +168,9 @@ class MusicsController extends Controller
             'music_name' => 'required|max:255',
             'artist' => 'required|max:255',
             'album' => 'max:255',
-            'url1' => 'max:255',
-            'url2' => 'max:255',
-            'url3' => 'max:255',
+            'url1' => ['nullable','max:255', new YouTubeUrl],
+            'url2' => ['nullable','max:255', new YouTubeUrl],
+            'url3' => ['nullable','max:255', new YouTubeUrl],
         ]);
 
         // print_r($req->checkGenre);
@@ -197,15 +202,19 @@ class MusicsController extends Controller
             /**
              * ジャンル保存
              */
-            foreach($req->checkGenre as $genre){
-                $music->genres()->attach($genre);
+            if (isset($req->checkGenre)){
+                foreach($req->checkGenre as $genre){
+                    $music->genres()->attach($genre);
+                }
             }
 
             /**
              * プレイスタイル保存
              */
-            foreach($req->checkStyle as $style){
-                $music->styles()->attach($style);
+            if (isset($req->checkStyle)){
+                foreach($req->checkStyle as $style){
+                    $music->styles()->attach($style);
+                }
             }
 
             /**
@@ -337,9 +346,9 @@ class MusicsController extends Controller
             'music_name' => 'required|max:255',
             'artist' => 'required|max:255',
             'album' => 'max:255',
-            'url1' => 'max:255',
-            'url2' => 'max:255',
-            'url3' => 'max:255',
+            'url1' => ['nullable','max:255', new YouTubeUrl],
+            'url2' => ['nullable','max:255', new YouTubeUrl],
+            'url3' => ['nullable','max:255', new YouTubeUrl],
         ]);
 
         /**
@@ -377,17 +386,21 @@ class MusicsController extends Controller
                 $flgSaveGenre = false;
                 $flgInputGenre = false;
                 // 曲-ジャンルテーブルに当該ジャンルのデータがあるか？
-                foreach($music->genres as $saveGenre){
-                    if ($genre->id === $saveGenre->id){
-                        $flgSaveGenre = true;
-                        break;
+                if (isset($music->genres)){
+                    foreach($music->genres as $saveGenre){
+                        if ($genre->id === $saveGenre->id){
+                            $flgSaveGenre = true;
+                            break;
+                        }
                     }
                 }
                 // 編集ページからの入力に当該ジャンルのチェックはあるか？
-                foreach($req->checkGenre as $inputGenre){
-                    if ($genre->id === (int)$inputGenre){
-                        $flgInputGenre = true;
-                        break;
+                if (isset($req->checkGenre)){
+                    foreach($req->checkGenre as $inputGenre){
+                        if ($genre->id === (int)$inputGenre){
+                            $flgInputGenre = true;
+                            break;
+                        }
                     }
                 }
 
@@ -415,17 +428,22 @@ class MusicsController extends Controller
                 $flgSaveStyle = false;
                 $flgInputStyle = false;
                 // 曲-スタイルテーブルに当該スタイルのデータがあるか？
-                foreach($music->styles as $saveStyle){
-                    if ($style->id === $saveStyle->id){
-                        $flgSaveStyle = true;
-                        break;
+                if (isset($music->styles)){
+                    foreach($music->styles as $saveStyle){
+                        if ($style->id === $saveStyle->id){
+                            $flgSaveStyle = true;
+                            break;
+                        }
                     }
                 }
+
                 // 編集ページからの入力に当該スタイルのチェックはあるか？
-                foreach($req->checkStyle as $inputStyle){
-                    if ($style->id === (int)$inputStyle){
-                        $flgInputStyle = true;
-                        break;
+                if (isset($req->checkStyle)){
+                    foreach($req->checkStyle as $inputStyle){
+                        if ($style->id === (int)$inputStyle){
+                            $flgInputStyle = true;
+                            break;
+                        }
                     }
                 }
 
